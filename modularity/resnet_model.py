@@ -7,13 +7,15 @@ import torchvision as tv
 
 
 class ResNetModel(pl.LightningModule):
-    def __init__(self, num_classes: int, sd_prob: float = 0.0):
+    def __init__(self, num_classes: int, lr: float = 0.05, sd_prob: float = 0.0):
         """
         Args:
             sd_prob: Drop probability for each layer when using stochastic
                 depth. If 0, no stochastic depth is used.
         """
         super().__init__()
+
+        self.lr = lr
         self.resnet = tv.models.regnet_x_1_6gf(num_classes=num_classes)
 
         # Manually patch the network to include stochastic depth
@@ -31,7 +33,9 @@ class ResNetModel(pl.LightningModule):
                 mod.forward = MethodType(patched_forward, mod)
 
     def configure_optimizers(self):
-        sgd = th.optim.SGD(self.parameters(), lr=0.05, momentum=0.9, weight_decay=5e-5)
+        sgd = th.optim.SGD(
+            self.parameters(), lr=self.lr, momentum=0.9, weight_decay=5e-5
+        )
         return [sgd], [th.optim.lr_scheduler.CosineAnnealingLR(sgd, 100)]
 
     def shared_step(

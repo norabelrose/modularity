@@ -7,11 +7,12 @@ setup(
     description="Experiments with induced modularity in neural networks",
     author="Nora Belrose",
     install_requires=[
+        "functorch",
         "numpy",
         "pytorch_lightning",
         "scipy",
         "torch",
         "torchvision",
-        "tqdm"
+        "tqdm",
     ],
 )
